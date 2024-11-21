@@ -50,92 +50,104 @@ export default function PlantIdentifier() {
     }
   };
 
+  const formatResult = (text: string) => {
+    return text.split("\n").map((line, index) => {
+      if (line.startsWith("**") && line.endsWith("**")) {
+        return (
+          <h3
+            key={index}
+            className="mt-4 mb-2 text-xl font-bold text-green-800"
+          >
+            {line.slice(2, -2)}
+          </h3>
+        );
+      }
+      return (
+        <p key={index} className="mb-2 text-green-700">
+          {line}
+        </p>
+      );
+    });
+  };
+
   return (
-    <>
-      {" "}
-      <h1 className="mb-8 text-4xl font-semibold text-center text-white">
-        PLANT <span className="text-4xl font-extrabold text-600">LENTS</span>
-      </h1>
-      <Card className="w-full border-green-200 shadow-lg bg-white/90 backdrop-blur-sm">
-        <CardContent className="p-6">
-          <h1 className="mb-6 text-3xl font-bold text-center text-green-800">
-            Identificador de Plantas
-          </h1>
-          <div className="mb-6">
+    <Card className="w-full border-green-200 shadow-lg bg-white/90 backdrop-blur-sm">
+      <CardContent className="p-6">
+        <h1 className="mb-6 text-3xl font-bold text-center text-green-800">
+          Identificador de Plantas
+        </h1>
+        <div className="mb-6">
+          <label
+            htmlFor="image-upload"
+            className="block mb-2 text-sm font-medium text-green-700"
+          >
+            Sube una imagen de planta o toma una foto
+          </label>
+          <div className="flex items-center gap-2">
+            <Input
+              type="file"
+              id="image-upload"
+              accept="image/*"
+              capture="environment"
+              onChange={handleImageUpload}
+              className="hidden"
+              ref={fileInputRef}
+            />
+            <Button
+              onClick={handleCameraCapture}
+              className="flex-1 text-white bg-green-600 hover:bg-green-700"
+            >
+              <Camera className="w-4 h-4 mr-2" />
+              Tomar Foto
+            </Button>
             <label
               htmlFor="image-upload"
-              className="block mb-2 text-sm font-medium text-green-700"
+              className="inline-flex items-center justify-center flex-1 px-4 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-md cursor-pointer hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
             >
-              Sube una imagen de planta o toma una foto
+              Subir Imagen
             </label>
-            <div className="flex items-center gap-2">
-              <Input
-                type="file"
-                id="image-upload"
-                accept="image/*"
-                capture="environment"
-                onChange={handleImageUpload}
-                className="hidden"
-                ref={fileInputRef}
-              />
-              <Button
-                onClick={handleCameraCapture}
-                className="flex-1 text-white bg-green-600 hover:bg-green-700"
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                Tomar Foto
-              </Button>
-              <label
-                htmlFor="image-upload"
-                className="inline-flex items-center justify-center flex-1 px-4 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-md cursor-pointer hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-              >
-                Subir Imagen
-              </label>
-            </div>
           </div>
-          {image && (
-            <div className="flex justify-center mt-6">
-              <Image
-                src={image}
-                alt="Planta subida"
-                width={300}
-                height={300}
-                className="rounded-lg shadow-md"
-              />
-            </div>
+        </div>
+        {image && (
+          <div className="flex justify-center mt-6">
+            <Image
+              src={image}
+              alt="Planta subida"
+              width={300}
+              height={300}
+              className="rounded-lg shadow-md"
+            />
+          </div>
+        )}
+        <Button
+          onClick={handleIdentify}
+          disabled={!file || loading}
+          className="w-full mt-6 text-white bg-green-600 hover:bg-green-700"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Identificando...
+            </>
+          ) : (
+            "Identificar Planta"
           )}
-          <Button
-            onClick={handleIdentify}
-            disabled={!file || loading}
-            className="w-full mt-6 text-white bg-green-600 hover:bg-green-700"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Identificando...
-              </>
-            ) : (
-              "Identificar Planta"
-            )}
-          </Button>
-          {result && (
-            <div className="p-4 mt-6 bg-white rounded-lg shadow">
-              <h2 className="mb-2 text-xl font-semibold text-green-800">
-                Resultado de la Identificación:
-              </h2>
-              <p className="text-sm text-green-700 whitespace-pre-wrap">
-                {result}
-              </p>
-            </div>
-          )}
-          {error && (
-            <div className="p-4 mt-6 rounded-lg shadow bg-red-50">
-              <h2 className="mb-2 text-xl font-semibold text-red-800">Error</h2>
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </>
+        </Button>
+        {result && (
+          <div className="p-4 mt-6 bg-white rounded-lg shadow">
+            <h2 className="mb-4 text-2xl font-semibold text-green-800">
+              Resultado de la Identificación:
+            </h2>
+            <div className="space-y-2">{formatResult(result)}</div>
+          </div>
+        )}
+        {error && (
+          <div className="p-4 mt-6 rounded-lg shadow bg-red-50">
+            <h2 className="mb-2 text-xl font-semibold text-red-800">Error</h2>
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
